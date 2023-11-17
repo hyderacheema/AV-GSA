@@ -1,0 +1,141 @@
+const fs = require('fs');
+const chalk = require('chalk');
+const { table } = require('table');
+const { VegaLite } = require('@observablehq/vega-lite-api'); // Example library, consider other suitable ones
+
+// Sample data
+const data = [
+  { name: 'Alice', age: 25, city: 'New York' },
+  { name: 'Bob', age: 30, city: 'San Francisco' },
+  { name: 'Charlie', age: 22, city: 'Los Angeles' }
+];
+
+// Display data in different formats
+function displayJSONData() {
+  console.log(chalk.yellow('JSON data:'));
+  console.log(JSON.stringify(data, null, 2));
+}
+
+function displayXMLData() {
+  // Simulated XML output
+  console.log(chalk.yellow('XML data:'));
+  console.log(`<people>\n${data.map(p => `  <person>\n    <name>${p.name}</name>\n    <age>${p.age}</age>\n    <city>${p.city}</city>\n  </person>`).join('\n')}\n</people>`);
+}
+
+function displayCSVData() {
+  console.log(chalk.yellow('CSV data:'));
+  const tableData = data.map(({ name, age, city }) => [name, age, city]);
+  console.table(['Name', 'Age', 'City'], tableData);
+}
+
+function displayHTMLData() {
+  // Simulated HTML output
+  console.log(chalk.yellow('HTML data:'));
+  console.log(`
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>People Information</title>
+  </head>
+  <body>
+    <h1>People Information</h1>
+    <table border="1">
+      <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>City</th>
+      </tr>
+      ${data.map(person => `
+        <tr>
+          <td>${person.name}</td>
+          <td>${person.age}</td>
+          <td>${person.city}</td>
+        </tr>
+      `).join('')}
+    </table>
+  </body>
+  </html>
+  `);
+}
+
+function displayGraphicalData() {
+  console.log(chalk.yellow('Graphical data (Vega-Lite chart):'));
+  const spec = {
+    $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+    data: {
+      values: data
+    },
+    mark: 'bar',
+    encoding: {
+      x: { field: 'name', type: 'ordinal' },
+      y: { field: 'age', type: 'quantitative' }
+    }
+  };
+  const chart = VegaLite(spec);
+  console.log(chart);
+}
+
+// Functions to write data to files
+function writeJSONFile() {
+  const jsonData = JSON.stringify(data, null, 2);
+  fs.writeFileSync('data.json', jsonData);
+  console.log(chalk.green('Data written to data.json'));
+}
+
+function writeXMLFile() {
+  // Simulated XML output
+  const xmlData = `<people>\n${data.map(p => `  <person>\n    <name>${p.name}</name>\n    <age>${p.age}</age>\n    <city>${p.city}</city>\n  </person>`).join('\n')}\n</people>`;
+  fs.writeFileSync('data.xml', xmlData);
+  console.log(chalk.green('Data written to data.xml'));
+}
+
+function writeCSVFile() {
+  const csvData = data.map(({ name, age, city }) => [name, age, city]);
+  fs.writeFileSync('data.csv', table(csvData));
+  console.log(chalk.green('Data written to data.csv'));
+}
+
+function writeHTMLFile() {
+  // Simulated HTML output
+  const htmlContent = `
+  <!-- Same HTML content as the displayHTMLData function -->
+  `;
+  fs.writeFileSync('data_uswds.html', htmlContent);
+  console.log(chalk.green('Data written to data_uswds.html'));
+}
+
+// Additional functionalities related to data manipulation
+function sortDataByKey(key) {
+  const sortedData = [...data].sort((a, b) => {
+    if (a[key] < b[key]) return -1;
+    if (a[key] > b[key]) return 1;
+    return 0;
+  });
+  console.log(chalk.yellow(`Sorted data by '${key}':`));
+  console.table(['Name', 'Age', 'City'], sortedData.map(({ name, age, city }) => [name, age, city]));
+}
+
+function filterDataByCity(city) {
+  const filteredData = data.filter(person => person.city.toLowerCase() === city.toLowerCase());
+  console.log(chalk.yellow(`Filtered data by city '${city}':`));
+  console.table(['Name', 'Age', 'City'], filteredData.map(({ name, age, city }) => [name, age, city]));
+}
+
+// Display data in different formats
+displayJSONData();
+displayXMLData();
+displayCSVData();
+displayHTMLData();
+displayGraphicalData(); // New method to display data graphically
+
+// Write data to files in different formats
+writeJSONFile();
+writeXMLFile();
+writeCSVFile();
+writeHTMLFile();
+
+// Additional data manipulation and file writing
+sortDataByKey('name');
+filterDataByCity('New York');
